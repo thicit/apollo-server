@@ -403,15 +403,18 @@ function splitFields(
         // If parent type is an object type, we can directly look for the right
         // group.
         const group = groupForField(field as Field<GraphQLObjectType>);
-        group.fields.push(
+        const fieldsForParentType = fieldsForResponseName.filter(f=>f.parentType===parentType);
+        if(fieldsForParentType.length>0) {
+          group.fields.push(
           completeField(
             context,
             parentType,
             group,
             path,
-            fieldsForResponseName,
+            fieldsForParentType,
           ),
         );
+        }
       } else {
         // For interfaces however, we need to look at all possible runtime types.
 
@@ -440,6 +443,8 @@ function splitFields(
         // We add the field separately for each runtime parent type.
         for (const [group, runtimeParentTypes] of groupsByRuntimeParentTypes) {
           for (const runtimeParentType of runtimeParentTypes) {
+            const fieldsForRuntimeParentType = fieldsForResponseName.filter(f=>f.parentType===runtimeParentType);
+        if(fieldsForRuntimeParentType.length>0) {
             group.fields.push(
               completeField(
                 context,
@@ -450,6 +455,7 @@ function splitFields(
               ),
             );
           }
+        }
         }
       }
     }
